@@ -57,47 +57,82 @@ console.log(myObject.value);
 var sum = add(3, 4);
 
 以此模式调用函数，this被绑定到了全局对象。这是错误的，正确的设计应该是当内部函数被调用时，this应该绑定到外部函数的this变量。因此声明一个that变量并赋值this，内部函数就可以通过that访问到this。这个听起来比较难理解，我们以代码的形式来说明
+
 myObject.double = function(){
+    
     var that = this ;
+    
     var helper = function(){
+        
         that .value = add(that.value,that.value);
+    
     }
+    
     helper(); //以函数的形式调用helper
+
 }
+
 //以方法的形式调用double
+
 myObject.double();
+
 console.log(myObject.value);
 - 构造器调用模式
+
 JavaScript是基于原型继承的语言，对象可以直接从其他对象继属性，该语言是无类型的。
+
 如果在一个函数前面带上new来调用，name背地里就会创建一个连接到该函数的prototype成员的新对象，同时this会绑定到新对象上
+  
   //创建一个名为Quo的构造器函数，它构造一个带有status属性的对象
 
   var Quo=function(string){
+    
     this.stastus=string;
+  
   };
+ 
   //给Quo 的所有实例提供一个名为get_status 的公共方法
+  
   Quo.prototype.get_status=function(){
+      
       return this..status;
+  
   };
+  
   //构造一个Quo实例
+  
    var myQuo =new Quo("confused");
+  
   document.writeln(myQuo.get_status());
 - Apply 调用模式
+
 apply方法可以构建一个参数数组传递给调用函数，apply方法接收两个数组，第一个是要绑定给this的值，第二个就是一个参数数组。
+  
   //构造一个包含两个数字的数组，并将它们相加
+  
   var array =[3,4];
+  
   var sum=add.apply(null,array);//sum的值为7
+ 
   //构造一个包含status成员的对象
+ 
   var statusObject={
+      
       status:'A-OK'
+  
   };
+  
   //statusObject 并没有继承自Quo.prototype,但我们可以在statusObject上调用
+  
   //用get_status方法，尽管statusObject并没有一个名为get_status的方法
+  
   var status=Quo.prototype.get_status.apply(statusObject);
+  
   //status的值为 'A-OK'
 ## 4.参数
 当函数被调用时，会得到一个“免费”配送的参数，那就是argument数组
 ## 5.返回
+
 一个函数总是会返回一个值。如果没有指定返回值，则返回undedined
 
 return语句可用来是函数提前返回
@@ -105,20 +140,26 @@ return语句可用来是函数提前返回
 如果函数调用时在前面加上了new前缀，且返回值不是一个对象，则返回this(该新对象)
 
 ## 6.异常
+
 js提供了一套异常处理机制 throw try-catch
 
 一个try语句只会有一个捕获所有异常的catch代码块
 
 ##7.扩充类型的功能
+
 通过给Object.prototype添加方法，可以让该方法对所有对象都可用。这样的方式对函数、数组、字符串、数字、正则表达式和布尔值同样适用
 
 Function.prototype.method = function(name, func) { if(!this.prototype[name]) {
 
     this.prototpe[name] = func;
-} 
+}
+
+
 return this;
+
 }
 ## 8.递归
+
 递归函数就是会直接或间接地调用自身的一种函数
 
 汉诺塔hanoi
@@ -128,9 +169,13 @@ var hanoi = funtion (disc, src, aux, dst) {
 if(disc > 0) {
 
     hanoi(disc - 1, src, dst, aux);
+    
     document.writeln('Move disc' + disc + 'from' + src + 'to' + dst);
+    
     hanoi(disc - 1, aux, src, dst);
+
 }
+
 };
 
 递归函数可以非常高效地操作树形结构 浏览器端的文档对象模型(DOM)
@@ -148,23 +193,37 @@ var bar = function() {
     var b = 7, c = 11;
 
     a += b + c;
+
 };
+
 bar();
+
 }
 
 ## 10.闭包
 - 部函数可以访问定义在他们外部的函数的变量和参数（除了this、arguments）
+
 var que = function(status){
+    
     return {
+        
         get_status: function(){
+            
             return status;
+        
         }
+    
     }
+
 }
+
 var myQuo = que("hello");
+
 console.log(myQuo.get_status());
+
 get_status方法并不是访问参数的副本，他访问的就是参数的本身，这就是闭包，保护status为私有属性
 ## 11.回调
+
 同步请求 => 假死状态
 
 异步请求 => 回调函数 => 异步函数立即返回
@@ -174,7 +233,9 @@ request = prepare_the_request();
 send_request_asynchronously(request, funtion(response) {
 
 display(response);
+
 })
+
 传第一个函数作为参数给send_request_asynchronously函数，一旦接收到响应它就会被调用
 
 ## 12.模块
@@ -182,28 +243,48 @@ display(response);
 - 模块模式利用函数作用域和闭包来创建被绑定对象与私有成员的关联
 - 模块的一般形式：一个定义了私有变量和函数的函数；利用闭包创建可以访问私有变量和函数的特权，最后一个返回该特权函数，或者把它们保存在一个可以访问的到的地方
 - 模块模式需要具备两个条件
+
 1、必须有外部的封装函数，该函数必须至少被调用一次（每次调用都会创建一个新的模块实例）。
+
 2、封闭函数必须返回至少一个尼日不函数，这样内部函数才能在私有的作用域形成闭包，并且可以访问或者可以修改私有状态。
+
 var foo= (function(){
+    
     var something = 'cool';
+    
     var another =[1,2,3];
+    
     function doSomething(){
+        
         console.log(something);
+    
     }
+    
     function doAnother(){
+        
         console.log(another.join(' ! '));
+    
     }
+    
     return{
+       
         doSomething: doSomething,
-        doAnother: doAnother
+       
+       doAnother: doAnother
+    
     }
+
 })();
+
 foo.doSomething();
+
 foo.doAnother();
 ## 13.级联
+
 启用级联可以让方法的返回值为this而不是默认值undefined .on('mousedown', function (m) {
 
 this.starDrag(m, this.getNinth(m));
+
 })
 
 .later(2000, funtion() {
@@ -220,6 +301,7 @@ this
 this可以返回参数值、函数值以及属性，并且可以修改属性的尺寸和样式，添加行为
 
 ## 14.柯里化
+
 柯里化允许我们把函数与传递给它们的参数相结合，产生出一个新的函数。
 
 var add1 = add.curry(1);
@@ -240,6 +322,7 @@ return that.apply(null, args.concat(slice.apply(arguments)));
 }
 
 ## 15.记忆
+
 函数可以将先前操作的结果记录在某个对象里，从而避免无谓的重复运算。这种优化被称为记忆。for if等语句经常被运用
 
 
